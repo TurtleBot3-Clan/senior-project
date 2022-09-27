@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import rospy
+import rospy # import rospy class
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
 
@@ -19,8 +19,8 @@ class ControlLane():
     def cbGetMaxVel(self, max_vel_msg):
         self.MAX_VEL = max_vel_msg.data
 
-    def cbFollowLane(self, desired_center):
-        center = desired_center.data
+    def cbFollowLane(self, desired_center): # go and follow lane
+        center = desired_center.data # baseline
 
         error = center - 500
 
@@ -29,12 +29,12 @@ class ControlLane():
         # Kd = 0.009
 
         # gazebo value
-        # Kp = 0.009
-        # Kd = 0.03
-
-        # true value
         Kp = 0.009
-        Kd = 0.009
+        Kd = 0.03
+
+        # # true value
+        # Kp = 0.009
+        # Kd = 0.009
 
         angular_z = Kp * error + Kd * (error - self.lastError)
         self.lastError = error
@@ -47,7 +47,7 @@ class ControlLane():
         twist.angular.z = -max(angular_z, -2.0) if angular_z < 0 else -min(angular_z, 2.0)
         self.pub_cmd_vel.publish(twist)
 
-    def fnShutDown(self):
+    def fnShutDown(self): # stop
         rospy.loginfo("Shutting down. cmd_vel will be 0")
 
         twist = Twist()
@@ -63,6 +63,6 @@ class ControlLane():
         rospy.spin()
 
 if __name__ == '__main__':
-    rospy.init_node('control_lane')
+    rospy.init_node('control_lane') # init 'control_lane' node
     node = ControlLane()
     node.main()
