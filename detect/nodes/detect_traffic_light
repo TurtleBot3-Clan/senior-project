@@ -4,7 +4,7 @@
 import rospy, cv2
 import numpy as np
 from enum import Enum
-from std_msgs.msg import UInt8, Float64
+from std_msgs.msg import UInt8, Float64, Bool
 from sensor_msgs.msg import CompressedImage
 from cv_bridge import CvBridge
 from dynamic_reconfigure.server import Server
@@ -51,6 +51,8 @@ class DetectTrafficLight():
         self.pub_max_vel = rospy.Publisher('/control/max_vel', Float64, queue_size = 1)
         self.pub_cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size = 1)
         self.pub_mission = rospy.Publisher('/mission', UInt8, queue_size=1)
+        self.pub_control_lane = rospy.Publisher('/control/lane', Float64, queue_size = 1)
+        self.pub_lane_toggle = rospy.Publisher('/detect/lane_toggle', Bool, queue_size=1)
 
         self.Mission = Enum('Mission', 'Idle TrafficLight Intersection Construction Parking LevelCrossing Tunnel')
 
@@ -69,12 +71,12 @@ class DetectTrafficLight():
 
         loop_rate = rospy.Rate(10)
 
-        while not rospy.is_shutdown():
+        while not rospy.is_shutdown(): # check if the program is closed or exited
             if self.is_image_available == True:
                 if self.is_traffic_light_finished == False:
                     self.fnFindTrafficLight()
 
-            loop_rate.sleep()
+            loop_rate.sleep() # control the program execution interval time
 
     def cbGetDetectTrafficLightParam(self, config, level):
 
@@ -155,23 +157,25 @@ class DetectTrafficLight():
                     self.stop_count = 0
 
         if self.green_count >= 5:
-            self.is_traffic_light_finished = True
+            self.is_traffic_light_finished = True # traffic_light is green and don't keep detecting
 
             # msg_pub_max_vel = Float64()
-            # msg_pub_max_vel.data = 0.12
+            # msg_pub_max_vel.data = 0.2
             # self.pub_max_vel.publish(msg_pub_max_vel)
 
             rospy.loginfo("GREEN")
             cv2.putText(self.cv_image,"GREEN", (self.point_col, self.point_low), cv2.FONT_HERSHEY_DUPLEX, 0.5, (80, 255, 0))
 
-            twist = Twist()
-            twist.linear.x = 0.3
-            for x in range(0, 5):
-                self.pub_cmd_vel.publish(twist)
-                rospy.sleep(0.2)
+            # twist = Twist()
+            # twist.linear.x = 0.3
+            # for x in range(0, 5):
+            #     self.pub_cmd_vel.publish(twist)
+            #     rospy.loginfo("I am publishing twist")
+            #     rospy.sleep(0.2)
             
             # go to next mission
             self.pub_mission.publish(self.Mission.Intersection.value)
+
 
         if self.yellow_count >= 8:
             rospy.loginfo("YELLOW")

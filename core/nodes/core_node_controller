@@ -17,24 +17,30 @@ class CoreNodeController():
         # Sub from each mission step data
         # example
         # rospy.Subscriber('/mission/intersection', UInt8, self.cbIntersectionStep, queue_size=1)
-        rospy.Subscriber('/mission/turtlesim', UInt8, self.cbTurtleStep, queue_size=1)
+        # rospy.Subscriber('/mission/turtlesim', UInt8, self.cbTurtleStep, queue_size=1)
 
-        # self.Mission = Enum('Mission', 'Idle TrafficLight Intersection Construction Parking LevelCrossing Tunnel')
-        self.Mission = Enum('Mission', 'Idle, OpenTurtleSim CloseTurtleSim')
+        self.Mission = Enum('Mission', 'Idle TrafficLight Intersection Construction Parking LevelCrossing Tunnel')
+        # self.Mission = Enum('Mission', 'Idle, OpenTurtleSim CloseTurtleSim')
 
         # each mission step enum
         # self.IntersectionStep = Enum('IntersectionStep', 'default process')
-        self.TurtlesimStep = Enum('TurtlesimStep', 'turtlesim turtleteleop')
+        # self.TurtlesimStep = Enum('TurtlesimStep', 'turtlesim turtleteleop')
 
-        self.is_triggered = False
-        self.current_mode = self.Mission.Idle.value
+        self.is_triggered = True
+        # self.current_mode = self.Mission.Idle.value # 1
+        self.current_mode = self.Mission.TrafficLight.value
         # self.current_step_intersection = self.IntersectionStep.default.value
-        self.current_setp_turtlesim = self.TurtlesimStep.turtlesim.value
+        # self.current_setp_turtlesim = self.TurtlesimStep.turtlesim.value
 
         # launcher enum
-        self.Launcher = Enum('Launcher', 'turtlesim turtleteleop')
-        self.launch_turtlesim_launched = False
-        self.launch_turtleteleop_launched = False
+        # self.Launcher = Enum('Launcher', 'turtlesim turtleteleop')
+        # self.launch_turtlesim_launched = False # is opened?
+        # self.launch_turtleteleop_launched = False
+        self.Launcher = Enum('Launcher', 'detectlane controllane trafficlight intersection')
+        self.launch_trafficlight_launched = False
+        self.launch_detectlane_launched = False
+        self.launch_controllane_launched = False
+        self.launch_controllane_launched = False
 
 
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
@@ -47,7 +53,7 @@ class CoreNodeController():
             
             loop_rate.sleep()
 
-    def cbReceiveMode(self, mode_msg):
+    def cbReceiveMode(self, mode_msg): # only receive mode_msg
         rospy.loginfo("starts the progress with %d", mode_msg.data)
         
         self.current_mode = mode_msg.data
@@ -55,70 +61,131 @@ class CoreNodeController():
 
     # create callback function
     # example
-    # def cbIntersectionStep(self, mode_msg):
-    #     self.current_step_intersection = mode_msg.data
-    #     self.is_triggered = True
-
-    def cbTurtleStep(self, mode_msg):
-        self.current_setp_turtlesim = mode_msg.data
+    def cbIntersectionStep(self, mode_msg):
+        self.current_step_intersection = mode_msg.data
         self.is_triggered = True
+
+    # def cbTurtleStep(self, mode_msg):
+    #     self.current_setp_turtlesim = mode_msg.data
+    #     self.is_triggered = True
 
     def fnControlNode(self):
 
+        if self.launch_detectlane_launched == False:
+            self.fnLaunch(self.Launcher.detectlane.value, True)
+
+        if self.current_mode == self.Mission.TrafficLight.value:
+            rospy.loginfo('current mode: Traffic Light')
+            self.fnLaunch(self.Launcher.trafficlight.value, True)
+
+        elif self.current_mode == self.Mission.Intersection.value:
+            rospy.loginfo('current mode: Intersection')
+            self.fnLaunch(self.Launcher.trafficlight.value, False)
+            self.fnLaunch(self.Launcher.controllane.value, True)
+
         # example
-        if self.current_mode == self.Mission.OpenTurtleSim.value:
+        # if self.current_mode == self.Mission.OpenTurtleSim.value:
 
-            if self.current_setp_turtlesim == self.TurtlesimStep.turtlesim.value:
-                rospy.loginfo("OPEN TURTLESIM")
-                self.fnLaunch(self.Launcher.turtlesim.value, True)
+        #     if self.current_setp_turtlesim == self.TurtlesimStep.turtlesim.value:
+        #         rospy.loginfo("OPEN TURTLESIM")
+        #         self.fnLaunch(self.Launcher.turtlesim.value, True)
 
-            elif self.current_setp_turtlesim == self.TurtlesimStep.turtleteleop.value:
-                rospy.loginfo("OPEN TURTLE_TELEOP")
-                self.fnLaunch(self.Launcher.turtleteleop.value, True)
+        #     elif self.current_setp_turtlesim == self.TurtlesimStep.turtleteleop.value:
+        #         rospy.loginfo("OPEN TURTLE_TELEOP")
+        #         self.fnLaunch(self.Launcher.turtleteleop.value, True)
 
-        elif self.current_mode == self.Mission.CloseTurtleSim.value:
-            rospy.loginfo("CLOSE TURTLESIM")
-            self.fnLaunch(self.Launcher.turtlesim.value, False)
-            self.fnLaunch(self.Launcher.turtlesim.value, False)
-            self.current_setp_turtlesim = self.TurtlesimStep.turtlesim.value
+        # elif self.current_mode == self.Mission.CloseTurtleSim.value:
+        #     rospy.loginfo("CLOSE TURTLESIM")
+        #     self.fnLaunch(self.Launcher.turtlesim.value, False)
+        #     self.fnLaunch(self.Launcher.turtlesim.value, False)
+        #     self.current_setp_turtlesim = self.TurtlesimStep.turtlesim.value
 
                     
         self.is_triggered = False
 
     def fnLaunch(self, launch_num, is_start):
 
-        # example 
-        if launch_num == self.Launcher.turtlesim.value:
+        if launch_num == self.Launcher.trafficlight.value:
             if is_start == True:
-                if self.launch_turtlesim_launched == False:
-                    self.launch_turtlesim = roslaunch.scriptapi.ROSLaunch()
-                    self.launch_turtlesim = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "core/launch/turtlesim.launch"])
-                    self.launch_turtlesim_launched = True
-                    self.launch_turtlesim.start()
+                if self.launch_trafficlight_launched == False:
+                    self.launch_trafficlight = roslaunch.scriptapi.ROSLaunch()
+                    self.launch_trafficlight = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "detect/launch/detect_traffic_light.launch"])
+                    self.launch_trafficlight_launched = True
+                    self.launch_trafficlight.start()
                 else:
                     pass
             else:
-                if self.launch_turtlesim_launched == True:
-                    self.launch_turtlesim_launched = False
-                    self.launch_turtlesim.shutdown()
+                if self.launch_trafficlight_launched == True:
+                    self.launch_trafficlight_launched = False
+                    self.launch_trafficlight.shutdown()
+                else:
+                    pass
+        
+        if launch_num == self.Launcher.detectlane.value:
+            if is_start == True:
+                if self.launch_detectlane_launched == False:
+                    self.launch_detectlane = roslaunch.scriptapi.ROSLaunch()
+                    self.launch_detectlane = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "detect/launch/detect_lane.launch"])
+                    self.launch_detectlane_launched = True
+                    self.launch_detectlane.start()
+                else:
+                    pass
+            else:
+                if self.launch_detectlane_launched == True:
+                    self.launch_detectlane_launched = False
+                    self.launch_detectlane.shutdown()
+                else:
+                    pass
+        
+        if launch_num == self.Launcher.controllane.value:
+            if is_start == True:
+                if self.launch_controllane_launched == False:
+                    self.launch_controllane = roslaunch.scriptapi.ROSLaunch()
+                    self.launch_controllane = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "control/launch/control_lane.launch"])
+                    self.launch_controllane_launched = True
+                    self.launch_controllane.start()
+                else:
+                    pass
+            else:
+                if self.launch_controllane_launched == True:
+                    self.launch_controllane_launched = False
+                    self.launch_controllane.shutdown()
                 else:
                     pass
 
-        if launch_num == self.Launcher.turtleteleop.value:
-            if is_start == True:
-                if self.launch_turtleteleop_launched == False:
-                    self.launch_turtleteleop = roslaunch.scriptapi.ROSLaunch()
-                    self.launch_turtleteleop = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "core/launch/turtle_teleop_key.launch"])
-                    self.launch_turtleteleop_launched = True
-                    self.launch_turtleteleop.start()
-                else:
-                    pass
-            else:
-                if self.launch_turtleteleop_launched == True:
-                    self.launch_turtleteleop_launched = False
-                    self.launch_turtleteleop.shutdown()
-                else:
-                    pass
+        # example 
+        # if launch_num == self.Launcher.turtlesim.value:
+        #     if is_start == True:
+        #         if self.launch_turtlesim_launched == False: # 判斷 launch 檔案是否還沒被開過
+        #             self.launch_turtlesim = roslaunch.scriptapi.ROSLaunch()
+        #             # specify and start .launch
+        #             self.launch_turtlesim = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "core/launch/turtlesim.launch"])
+        #             self.launch_turtlesim_launched = True
+        #             self.launch_turtlesim.start()
+        #         else:
+        #             pass
+        #     else:
+        #         if self.launch_turtlesim_launched == True:
+        #             self.launch_turtlesim_launched = False
+        #             self.launch_turtlesim.shutdown()
+        #         else:
+        #             pass
+
+        # if launch_num == self.Launcher.turtleteleop.value:
+        #     if is_start == True:
+        #         if self.launch_turtleteleop_launched == False:
+        #             self.launch_turtleteleop = roslaunch.scriptapi.ROSLaunch()
+        #             self.launch_turtleteleop = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "core/launch/turtle_teleop_key.launch"])
+        #             self.launch_turtleteleop_launched = True
+        #             self.launch_turtleteleop.start()
+        #         else:
+        #             pass
+        #     else:
+        #         if self.launch_turtleteleop_launched == True:
+        #             self.launch_turtleteleop_launched = False
+        #             self.launch_turtleteleop.shutdown()
+        #         else:
+        #             pass
             
     def main(self):
         rospy.spin()
