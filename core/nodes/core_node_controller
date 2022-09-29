@@ -40,7 +40,7 @@ class CoreNodeController():
         self.launch_trafficlight_launched = False
         self.launch_detectlane_launched = False
         self.launch_controllane_launched = False
-        self.launch_controllane_launched = False
+        self.launch_intersection_launched = False
 
 
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
@@ -150,6 +150,22 @@ class CoreNodeController():
                 if self.launch_controllane_launched == True:
                     self.launch_controllane_launched = False
                     self.launch_controllane.shutdown()
+                else:
+                    pass
+
+        if launch_num == self.Launcher.intersection.value:
+            if is_start == True:
+                if self.launch_intersection_launched == False:
+                    self.launch_intersection = roslaunch.scriptapi.ROSLaunch()
+                    self.launch_intersection = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "detect/launch/detect_intersection.launch"])
+                    self.launch_intersection_launched = True
+                    self.launch_intersection.start()
+                else:
+                    pass
+            else:
+                if self.launch_intersection_launched == True:
+                    self.launch_intersection_launched = False
+                    self.launch_intersection.shutdown()
                 else:
                     pass
 
