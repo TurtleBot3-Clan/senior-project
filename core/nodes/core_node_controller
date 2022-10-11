@@ -23,14 +23,12 @@ class CoreNodeController():
         
 
         # each mission step enum
-        # self.IntersectionStep = Enum('IntersectionStep', 'default process')
         self.TunnelStep = Enum('TunnelStep', 'default process nav end')
-        # self.TurtlesimStep = Enum('TurtlesimStep', 'turtlesim turtleteleop')
 
         self.is_triggered = True
-        # self.current_mode = self.Mission.Idle.value # 1
+        self.current_mode = self.Mission.Idle.value # 1
         # self.current_mode = self.Mission.TrafficLight.value
-        self.current_mode = self.Mission.Tunnel.value
+        # self.current_mode = self.Mission.Tunnel.value
         self.current_step_tunnel = self.TunnelStep.default.value
 
         # launcher enum
@@ -73,8 +71,8 @@ class CoreNodeController():
     
 
     def fnControlNode(self):
-        # self.fnLaunch(self.Launcher.detectlane.value, True)
-        # self.fnLaunch(self.Launcher.controllane.value, True)
+        self.fnLaunch(self.Launcher.detectlane.value, True)
+        self.fnLaunch(self.Launcher.controllane.value, True)
 
         if self.current_mode == self.Mission.TrafficLight.value:
             rospy.loginfo('current mode: Traffic Light')
@@ -91,25 +89,18 @@ class CoreNodeController():
 
             if self.current_step_tunnel == self.TunnelStep.default.value:
                 rospy.loginfo("tunnel default")
-                self.fnLaunch(self.Launcher.detectlane.value, True)
-                self.fnLaunch(self.Launcher.controllane.value, True)
 
             elif self.current_step_tunnel == self.TunnelStep.process.value:
                 rospy.loginfo("tunnel process")
                 self.fnLaunch(self.Launcher.controllane.value, False)
                 self.fnLaunch(self.Launcher.detectlane.value, False)
-                # self.fnLaunch(self.Launcher.controlmoving.value, True)
 
             elif self.current_step_tunnel == self.TunnelStep.nav.value:
                 rospy.loginfo("tunnel nav")
-                # self.fnLaunch(self.Launcher.controllane.value, False)
-                # self.fnLaunch(self.Launcher.detectlane.value, False)
                 self.fnLaunch(self.Launcher.controltunnel.value, True)
 
             elif self.current_step_tunnel == self.TunnelStep.end.value:
                 rospy.loginfo("tunnel end")
-                # self.fnLaunch(self.Launcher.controllane.value, False)
-                # self.fnLaunch(self.Launcher.detectlane.value, False)
                 self.fnLaunch(self.Launcher.controltunnel.value, False)
                 self.fnLaunch(self.Launcher.tunnel.value, False)
 
