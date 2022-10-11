@@ -88,6 +88,7 @@ class CoreNodeController():
             rospy.loginfo('current mode: Intersection')
             self.fnLaunch(self.Launcher.trafficlight.value, False)
             self.fnLaunch(self.Launcher.controllane.value, True)
+            self.fnLaunch(self.Launcher.intersection.value, True)
 
         elif self.current_mode == self.Mission.Construction.value:
             rospy.loginfo("current mode: Construction Mission")
@@ -103,7 +104,6 @@ class CoreNodeController():
         elif self.current_mode == self.Mission.Tunnel.value:
             rospy.loginfo('current mode: Tunnel') # default process nav end
             self.fnLaunch(self.Launcher.tunnel.value, True)
-            self.fnLaunch(self.Launcher.intersection.value, True)
 
             if self.current_step_tunnel == self.TunnelStep.default.value:
                 rospy.loginfo("tunnel default")
