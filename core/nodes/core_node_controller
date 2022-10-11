@@ -26,13 +26,11 @@ class CoreNodeController():
         self.TunnelStep = Enum('TunnelStep', 'default process nav end')
 
         self.is_triggered = True
-        self.current_mode = self.Mission.Idle.value # 1
-        # self.current_mode = self.Mission.TrafficLight.value
-        # self.current_mode = self.Mission.Tunnel.value
+        self.current_mode = self.Mission.TrafficLight.value
         self.current_step_tunnel = self.TunnelStep.default.value
 
         # launcher enum
-        self.Launcher = Enum('Launcher', 'detectlane controllane controlmoving trafficlight intersection tunnel controltunnel')
+        self.Launcher = Enum('Launcher', 'detectlane controllane controlmoving trafficlight intersection construction parking tunnel controltunnel')
         self.launch_trafficlight_launched = False
         self.launch_detectlane_launched = False
         self.launch_controllane_launched = False
@@ -40,7 +38,8 @@ class CoreNodeController():
         self.launch_controlmoving_launched = False
         self.launch_tunnel_launched = False
         self.launch_controltunnel_launched = False
-
+        self.launch_construction_launched = False
+        self.launch_parking_launched = False
 
 
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
@@ -69,6 +68,13 @@ class CoreNodeController():
         self.current_step_tunnel = mode_msg.data
         self.is_triggered = True
     
+    def cbconsturctionStep(self, mode_msg):
+        self.current_step_construction = mode_msg.data
+        self.is_triggered = True
+
+    def cbparkingStep(self, mode_msg):
+        self.current_step_parking = mode_msg.data
+        self.is_triggered = True
 
     def fnControlNode(self):
         self.fnLaunch(self.Launcher.detectlane.value, True)
@@ -82,10 +88,22 @@ class CoreNodeController():
             rospy.loginfo('current mode: Intersection')
             self.fnLaunch(self.Launcher.trafficlight.value, False)
             self.fnLaunch(self.Launcher.controllane.value, True)
+
+        elif self.current_mode == self.Mission.Construction.value:
+            rospy.loginfo("current mode: Construction Mission")
+            self.fnLaunch(self.Launcher.intersection.value, False)
+            self.fnLaunch(self.Launcher.controllane.value, True)
+            self.fnLaunch(self.Launcher.construction.value, True)
+
+        elif self.current_mode == self.Mission.Parking.value:
+            rospy.loginfo("current mode: Parking Mission")
+            self.fnLaunch(self.Launcher.construction.value, False)
+            # self.fnLaunch(self.Launcher.controllane.value, True)
         
         elif self.current_mode == self.Mission.Tunnel.value:
             rospy.loginfo('current mode: Tunnel') # default process nav end
             self.fnLaunch(self.Launcher.tunnel.value, True)
+            self.fnLaunch(self.Launcher.intersection.value, True)
 
             if self.current_step_tunnel == self.TunnelStep.default.value:
                 rospy.loginfo("tunnel default")
@@ -104,7 +122,6 @@ class CoreNodeController():
                 self.fnLaunch(self.Launcher.controltunnel.value, False)
                 self.fnLaunch(self.Launcher.tunnel.value, False)
 
-                    
         self.is_triggered = False
 
     def fnLaunch(self, launch_num, is_start):
@@ -194,6 +211,23 @@ class CoreNodeController():
                 else:
                     pass
 
+        # detect_construction
+        if launch_num == self.Launcher.construction.value:
+            if is_start == True:
+                if self.launch_construction_launched == False:
+                    self.launch_construction = roslaunch.scriptapi.ROSLaunch()
+                    self.launch_construction = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "detect/launch/detect_construction.launch"])
+                    self.launch_construction_launched = True
+                    self.launch_construction.start()
+                else:
+                    pass
+            else:
+                if self.launch_construction_launched == True:
+                    self.launch_construction_launched = False
+                    self.launch_construction.shutdown()
+                else:
+                    pass
+
         # detect_tunnel.launch
         if launch_num == self.Launcher.tunnel.value:
             if is_start == True:
@@ -227,7 +261,7 @@ class CoreNodeController():
                     self.launch_controltunnel.shutdown()
                 else:
                     pass
-            
+
     def main(self):
         rospy.spin()
 
