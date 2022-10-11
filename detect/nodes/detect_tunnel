@@ -236,8 +236,6 @@ class DetectSign():
 
 
     def cbOdom(self, odom_msg):
-        # rospy.loginfo('odom_msg.twist.twist: ')
-        # rospy.loginfo(odom_msg.twist.twist)
 
         quaternion = (odom_msg.pose.pose.orientation.x, odom_msg.pose.pose.orientation.y, odom_msg.pose.pose.orientation.z, odom_msg.pose.pose.orientation.w)
         self.current_theta = self.euler_from_quaternion(quaternion)
@@ -284,7 +282,6 @@ class DetectSign():
         Kd = 0.05
 
         angular_z = Kp * err_pos + Kd * (err_pos - self.lastError)
-        # rospy.loginfo("angular_z: %f", angular_z)
         self.lastError = err_pos
 
         twist = Twist()
