@@ -15,7 +15,7 @@ class CoreNodeController():
         self.sub_mission = rospy.Subscriber('/mission', UInt8, self.cbReceiveMode, queue_size=1)
 
         # Sub from each mission step data
-        # rospy.Subscriber('/mission/intersection', UInt8, self.cbIntersectionStep, queue_size=1)
+        rospy.Subscriber('/mission/intersection', UInt8, self.cbIntersectionStep, queue_size=1)
         rospy.Subscriber('/mission/tunnel', UInt8, self.cbTunnelStep, queue_size=1)
         
 
@@ -41,8 +41,6 @@ class CoreNodeController():
         self.launch_controlmoving_launched = False
         self.launch_tunnel_launched = False
         self.launch_controltunnel_launched = False
-        
-
 
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         
@@ -61,7 +59,6 @@ class CoreNodeController():
         self.is_triggered = True
 
     # create callback function
-    # example
     def cbIntersectionStep(self, mode_msg):
         self.current_step_intersection = mode_msg.data
         self.is_triggered = True
@@ -113,19 +110,18 @@ class CoreNodeController():
         elif self.current_mode == self.Mission.Construction.value:
             rospy.loginfo('current mode: Construction Mission')
             self.fnLaunch(self.Launcher.intersection.value, False)
-            # self.fnLaunch(self.Launcher.detectlane.value, True)
-            # self.fnLaunch(self.Launcher.controllane.value, True)
             self.fnLaunch(self.Launcher.construction.value, True)
 
         elif self.current_mode == self.Mission.Parking.value:
             rospy.loginfo('current mode: Parking Mission')
             self.fnLaunch(self.Launcher.construction.value, False)
-            self.fnLaunch(self.Launcher.controllane.value, True)
             self.fnLaunch(self.Launcher.controlmoving.value, True)
             self.fnLaunch(self.Launcher.parking.value, True)
         
         elif self.current_mode == self.Mission.Level.value:
             rospy.loginfo("current mode: Level Mission")
+            self.fnLaunch(self.Launcher.controlmoving.value, False)
+            self.fnLaunch(self.Launcher.parking.value, False)
             self.fnLaunch(self.Launcher.level.value, True)
         
         elif self.current_mode == self.Mission.Tunnel.value:
