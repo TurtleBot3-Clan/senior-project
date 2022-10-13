@@ -57,7 +57,8 @@ class DetectSign():
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = dir_path.replace('detect/nodes', 'detect/')
-        dir_path += 'image/'
+        # dir_path += 'image/'
+        dir_path += 'image/gazebo/'
 
         # intersection
         self.img_intersection = cv2.imread(dir_path + 'intersection.png',0)
@@ -96,7 +97,7 @@ class DetectSign():
         # cv_image_input = CvBridge.imgmsg_to_cv2(image_msg, "bgr8")
 
 
-        MIN_MATCH_COUNT = 9 #12
+        MIN_MATCH_COUNT = 10 #12
         MIN_MSE_DECISION = 50000
 
         # find the keypoints and descriptors with SIFT
@@ -109,6 +110,7 @@ class DetectSign():
             for m,n in matches_intersection:
                 if m.distance < 0.7*n.distance:
                     good_intersection.append(m)
+            rospy.loginfo('len(good_intersection): %d', len(good_intersection))
             if len(good_intersection)>MIN_MATCH_COUNT:
                 src_pts = np.float32([kp1[m.queryIdx].pt for m in good_intersection ]).reshape(-1,1,2)
                 dst_pts = np.float32([self.kp_intersection[m.trainIdx].pt for m in good_intersection]).reshape(-1,1,2)
@@ -211,13 +213,13 @@ class DetectSign():
             # self.current_step = self.IntersectionStep.done.value
             if self.is_saw_right == True:
                 # 90 , 40, 150, 120
-                self.pub_top_y.publish(40)
+                self.pub_top_y.publish(40) # sightly adjust the bird's eye view to detect the lane area
                 self.pub_bot_x.publish(140)
                 rospy.loginfo('RIGHT')
                 for x in range(0, 12):
-                    self.pub_fake_lane.publish(610)
+                    self.pub_fake_lane.publish(610) # 500 is cneter
                     rospy.sleep(0.1)
-                self.pub_lane_toggle.publish(True)
+                self.pub_lane_toggle.publish(True) # After turn into the the intersection. turn on the toggle
                 rospy.sleep(10)
                 self.pub_lane_toggle.publish(False)
                 for x in range(0, 12):
