@@ -148,7 +148,8 @@ class DetectSign():
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = dir_path.replace('detect/nodes', 'detect/')
-        dir_path += 'image/'
+        dir_path += 'image/gazebo/'
+        # dir_path += 'image/'
 
         self.img_stop = cv2.imread(dir_path + 'stop.png', 0)
         self.kp_stop, self.des_stop = self.sift.detectAndCompute(self.img_stop, None)
@@ -195,6 +196,7 @@ class DetectSign():
             for m,n in matches:
                 if m.distance < 0.7*n.distance:
                     good.append(m)
+            rospy.loginfo(len(good))
             if len(good)>MIN_MATCH_COUNT:
                 src_pts = np.float32([kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
                 dst_pts = np.float32([self.kp_stop[m.trainIdx].pt for m in good]).reshape(-1,1,2)
