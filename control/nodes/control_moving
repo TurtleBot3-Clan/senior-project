@@ -233,8 +233,12 @@ class ControlMoving():
         err_pos = math.sqrt((self.current_pos_x - self.start_pos_x) ** 2 + (self.current_pos_y - self.start_pos_y) ** 2) - desired_dist
     
         # rospy.loginfo("error_pos2 = %f", err_pos)
-        Kp = 0.04
-        Kd = 0.05
+        # Kp = 0.04
+        # Kd = 0.05
+
+        # gazebo value my
+        Kp = 0.0025
+        Kd = 0.007
 
         angular_z = Kp * err_pos + Kd * (err_pos - self.lastError)
         self.lastError = err_pos
@@ -261,8 +265,12 @@ class ControlMoving():
         err_pos = math.sqrt((self.current_pos_x - self.start_pos_x) ** 2 + (self.current_pos_y - self.start_pos_y) ** 2) - desired_dist
     
         # rospy.loginfo("error_pos = %f", err_pos)
-        Kp = 0.04
-        Kd = 0.05
+        # Kp = 0.04
+        # Kd = 0.05
+
+        # gazebo value my
+        Kp = 0.0025
+        Kd = 0.007
 
         angular_z = Kp * err_pos + Kd * (err_pos - self.lastError)
         self.lastError = err_pos
