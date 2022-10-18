@@ -84,7 +84,7 @@ class DetectSign():
             srv_image = Server(DetectLevelParamsConfig, self.cbGetDetectLevelParam)
         
         # subscribes compressed image
-        # self.sub_img = rospy.Subscriber('/image_input', CompressedImage, self.cbFindTrafficSign, queue_size = 1)
+        self.sub_img = rospy.Subscriber('/image_input', CompressedImage, self.cbFindTrafficSign, queue_size = 1)
         self.sub_level_img = rospy.Subscriber('/image_input', CompressedImage, self.cbGetImage, queue_size=1)
 
         # publishes 
@@ -148,8 +148,7 @@ class DetectSign():
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = dir_path.replace('detect/nodes', 'detect/')
-        dir_path += 'image/gazebo/'
-        # dir_path += 'image/'
+        dir_path += 'image/'
 
         self.img_stop = cv2.imread(dir_path + 'stop.png', 0)
         self.kp_stop, self.des_stop = self.sift.detectAndCompute(self.img_stop, None)

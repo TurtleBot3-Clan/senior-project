@@ -57,8 +57,7 @@ class DetectSign():
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = dir_path.replace('detect/nodes', 'detect/')
-        # dir_path += 'image/'
-        dir_path += 'image/gazebo/'
+        dir_path += 'image/'
 
         # intersection
         self.img_intersection = cv2.imread(dir_path + 'intersection.png',0)

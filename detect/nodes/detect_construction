@@ -64,9 +64,7 @@ class DetectSign():
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = dir_path.replace('detect/nodes', 'detect/')
-        dir_path += 'image/gazebo/'
-        # dir_path += 'image/' # real
-
+        dir_path += 'image/'
 
         self.img_construction = cv2.imread(dir_path + 'construction.png', 0)
         self.kp_construction, self.des_constuction = self.sift.detectAndCompute(self.img_construction, None)
