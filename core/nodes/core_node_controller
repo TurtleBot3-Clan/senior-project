@@ -87,7 +87,7 @@ class CoreNodeController():
             self.fnLaunch(self.Launcher.trafficlight.value, True)
 
         elif self.current_mode == self.Mission.Intersection.value:
-            rospy.loginfo('current mode: Intersection')
+            rospy.loginfo('current mode: Intersection') # default process done
 
             if self.current_step_intersection == self.IntersectionStep.default.value:
                 rospy.loginfo('Intersection Default')
