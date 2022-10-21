@@ -210,7 +210,7 @@ class DetectSign():
                 self.pub_lane_toggle.publish(False)
 
         if (self.is_saw_left == True or self.is_saw_right == True) and self.current_step == self.IntersectionStep.process.value:
-            # self.current_step = self.IntersectionStep.done.value
+            self.current_step = self.IntersectionStep.done.value
             if self.is_saw_right == True:
                 # 90 , 40, 150, 120
                 self.pub_top_y.publish(40) # sightly adjust the bird's eye view to detect the lane area
