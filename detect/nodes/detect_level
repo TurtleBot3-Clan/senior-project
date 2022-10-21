@@ -225,43 +225,43 @@ class DetectSign():
             self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_compressed_imgmsg(final_stop, "jpg"))
 
         # level process    
-        if self.is_saw_stop == True:
+        # if self.is_saw_stop == True:
 
-            rospy.loginfo("[LevelCrossing] Slow")
+        #     rospy.loginfo("[LevelCrossing] Slow")
             
-            msg_pub_max_vel = Float64()
-            msg_pub_max_vel.data = 0.05
-            self.pub_max_vel.publish(msg_pub_max_vel)    
+        #     msg_pub_max_vel = Float64()
+        #     msg_pub_max_vel.data = 0.03
+        #     self.pub_max_vel.publish(msg_pub_max_vel)    
 
-            while True:
-                _, is_level_close, _ = self.fnFindLevel()
-                if is_level_close == True:
-                    break
-                else:
-                    pass
+        #     while True:
+        #         _, is_level_close, _ = self.fnFindLevel()
+        #         if is_level_close == True:
+        #             break
+        #         else:
+        #             pass
 
-            rospy.loginfo("[LevelCrossing] STOP")
+        #     rospy.loginfo("[LevelCrossing] STOP")
 
-            msg_pub_max_vel.data = 0.0
-            self.pub_max_vel.publish(msg_pub_max_vel)
-            rospy.sleep(1)
+        #     msg_pub_max_vel.data = 0.0
+        #     self.pub_max_vel.publish(msg_pub_max_vel)
+        #     rospy.sleep(1)
 
-            while True:
-                _, _, is_level_opened = self.fnFindLevel()
-                if is_level_opened == True:
-                    break
-                else:
-                    pass
+        #     while True:
+        #         _, _, is_level_opened = self.fnFindLevel()
+        #         if is_level_opened == True:
+        #             break
+        #         else:
+        #             pass
             
-            rospy.loginfo("[LevelCrossing] GO")
-            msg_pub_max_vel.data = 0.2
-            self.pub_max_vel.publish(msg_pub_max_vel)
+        #     rospy.loginfo("[LevelCrossing] GO")
+        #     msg_pub_max_vel.data = 0.2
+        #     self.pub_max_vel.publish(msg_pub_max_vel)
 
-            rospy.loginfo("[LevelCrossing] FINISH")
+        #     rospy.loginfo("[LevelCrossing] FINISH")
 
-            # go to next mission
-            self.pub_mission.publish(self.Mission.Tunnel.value)
-            self.counter = 1
+        #     # go to next mission
+        #     self.pub_mission.publish(self.Mission.Tunnel.value)
+        #     self.counter = 1
         
     def fnFindLevel(self):
         cv_image_mask = self.fnMaskRedOfLevel()
