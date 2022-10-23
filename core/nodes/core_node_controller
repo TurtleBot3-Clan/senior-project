@@ -28,6 +28,7 @@ class CoreNodeController():
 
         self.is_triggered = True
         self.current_mode = self.Mission.TrafficLight.value
+        self.current_step_intersection = self.IntersectionStep.default.value
         self.current_step_tunnel = self.TunnelStep.default.value
 
         # launcher enum
