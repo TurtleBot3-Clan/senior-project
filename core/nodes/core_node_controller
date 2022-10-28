@@ -15,20 +15,15 @@ class CoreNodeController():
         self.sub_mission = rospy.Subscriber('/mission', UInt8, self.cbReceiveMode, queue_size=1)
 
         # Sub from each mission step data
-        rospy.Subscriber('/mission/intersection', UInt8, self.cbIntersectionStep, queue_size=1)
         rospy.Subscriber('/mission/tunnel', UInt8, self.cbTunnelStep, queue_size=1)
         
-
         self.Mission = Enum('Mission', 'Idle TrafficLight Intersection Construction Parking Level Tunnel')
-        
 
         # each mission step enum
-        self.IntersectionStep = Enum('IntersectionStep', 'default process done')
         self.TunnelStep = Enum('TunnelStep', 'default process nav end')
 
         self.is_triggered = True
         self.current_mode = self.Mission.TrafficLight.value
-        self.current_step_intersection = self.IntersectionStep.default.value
         self.current_step_tunnel = self.TunnelStep.default.value
 
         # launcher enum
@@ -88,25 +83,11 @@ class CoreNodeController():
             self.fnLaunch(self.Launcher.trafficlight.value, True)
 
         elif self.current_mode == self.Mission.Intersection.value:
-            rospy.loginfo('current mode: Intersection') # default process done
-
-            if self.current_step_intersection == self.IntersectionStep.default.value:
-                rospy.loginfo('Intersection Default')
-                self.fnLaunch(self.Launcher.trafficlight.value, False)
-                self.fnLaunch(self.Launcher.intersection.value, True)
-                self.fnLaunch(self.Launcher.detectlane.value, True)
-                self.fnLaunch(self.Launcher.controllane.value, True)
-            
-            elif self.current_step_intersection == self.IntersectionStep.process.value:
-                rospy.loginfo('Intersection Process')
-                self.fnLaunch(self.Launcher.detectlane.value, False)
-                self.fnLaunch(self.Launcher.controllane.value, False)
-
-            elif self.current_step_intersection == self.IntersectionStep.done.value:
-                rospy.loginfo('Intersection Done')
-                self.fnLaunch(self.Launcher.intersection.value, False)
-                self.fnLaunch(self.Launcher.detectlane.value, True)
-                self.fnLaunch(self.Launcher.controllane.value, True)
+            rospy.loginfo('current mode: Intersection') 
+            self.fnLaunch(self.Launcher.trafficlight.value, False)
+            self.fnLaunch(self.Launcher.detectlane.value, True)
+            self.fnLaunch(self.Launcher.controllane.value, True)
+            self.fnLaunch(self.Launcher.intersection.value, True)
 
         elif self.current_mode == self.Mission.Construction.value:
             rospy.loginfo('current mode: Construction Mission')
@@ -127,11 +108,10 @@ class CoreNodeController():
         
         elif self.current_mode == self.Mission.Tunnel.value:
             rospy.loginfo('current mode: Tunnel') # default process nav end
-            self.fnLaunch(self.Launcher.tunnel.value, True)
-            self.fnLaunch(self.Launcher.level.value, False)
 
             if self.current_step_tunnel == self.TunnelStep.default.value:
                 rospy.loginfo("tunnel default")
+                self.fnLaunch(self.Launcher.level.value, False)
                 self.fnLaunch(self.Launcher.tunnel.value, True)
 
             elif self.current_step_tunnel == self.TunnelStep.process.value:
