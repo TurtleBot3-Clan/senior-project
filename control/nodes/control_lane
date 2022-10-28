@@ -28,13 +28,9 @@ class ControlLane():
         # Kp = 0.0013
         # Kd = 0.009
 
-        # gazebo value
-        Kp = 0.009
-        Kd = 0.03
-
-        # # true value
-        # Kp = 0.009
-        # Kd = 0.009
+        # true value
+        Kp = 0.009 # 0.009
+        Kd = 0.009
 
         angular_z = Kp * error + Kd * (error - self.lastError)
         self.lastError = error
