@@ -30,7 +30,7 @@ class DetectSign():
 
         self.Mission = Enum('Mission', 'Idle TrafficLight Intersection Construction Parking LevelCrossing Tunnel')
         self.ConstructionStep = Enum('ConstructionStep', 'default process')
-        self.current_step = self.ConstructionStep.default.value
+        self.current_step_construction = self.ConstructionStep.default.value
         
         self.cvBridge = CvBridge()
         self.counter = 1
@@ -99,7 +99,7 @@ class DetectSign():
         # converting raw image to opencv image
         # cv_image_input = CvBridge.imgmsg_to_cv2(image_msg, "bgr8")
 
-        MIN_MATCH_COUNT = 6 #9 #######################change
+        MIN_MATCH_COUNT = 9 
         MIN_MSE_DECISION = 50000
 
         # find the keypoints and descriptors with SIFT
@@ -113,8 +113,8 @@ class DetectSign():
             for m,n in matches:
                 if m.distance < 0.7*n.distance:
                     good.append(m)
-                    if len(good) > 3:
-                        rospy.loginfo('len(good): %d', len(good))
+                    # if len(good) > 3:
+                    #     rospy.loginfo('len(good): %d', len(good))
             if len(good)>MIN_MATCH_COUNT:
                 src_pts = np.float32([kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
                 dst_pts = np.float32([self.kp_construction[m.trainIdx].pt for m in good]).reshape(-1,1,2)
@@ -145,6 +145,7 @@ class DetectSign():
 
         # construction process
         if self.is_obstacle_detected == True:
+            # self.pub_mission_step.publish(self.ConstructionStep.process.value)
             self.pub_lane_toggle.publish(False) # 關掉 control lane
             rospy.loginfo('construction processing')
             for x in range(0, 35): #15

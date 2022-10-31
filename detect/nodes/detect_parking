@@ -115,7 +115,7 @@ class DetectSign():
         # converting raw image to opencv image
         # cv_image_input = CvBridge.imgmsg_to_cv2(image_msg, "bgr8")
 
-        MIN_MATCH_COUNT = 11 #9
+        MIN_MATCH_COUNT = 10 #9
         MIN_MSE_DECISION = 50000
 
         # find the keypoints and descriptors with SIFT
@@ -175,7 +175,7 @@ class DetectSign():
             rospy.loginfo("[PARKING] L")
             msg_moving = MovingParam()
             msg_moving.moving_type=2
-            msg_moving.moving_value_angular=2
+            msg_moving.moving_value_angular=2.5
             msg_moving.moving_value_linear=0.0
             self.pub_moving.publish(msg_moving)
             while True:
@@ -189,7 +189,7 @@ class DetectSign():
             msg_moving = MovingParam()
             msg_moving.moving_type= 4
             msg_moving.moving_value_angular=0.0
-            msg_moving.moving_value_linear=0.5 # 0.75
+            msg_moving.moving_value_linear=0.45 # 0.75
             self.pub_moving.publish(msg_moving)
             while True:
                 if self.is_moving_complete == True:
@@ -201,7 +201,7 @@ class DetectSign():
             rospy.loginfo("[PARKING] L")
             msg_moving = MovingParam()
             msg_moving.moving_type=2
-            msg_moving.moving_value_angular=91
+            msg_moving.moving_value_angular=89 #91
             msg_moving.moving_value_linear=0.0
             self.pub_moving.publish(msg_moving)
             while True:
