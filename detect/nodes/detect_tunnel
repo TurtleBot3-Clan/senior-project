@@ -126,7 +126,7 @@ class DetectSign():
         # converting raw image to opencv image
         # cv_image_input = CvBridge.imgmsg_to_cv2(image_msg, "bgr8")
 
-        MIN_MATCH_COUNT = 10 #7 #9
+        MIN_MATCH_COUNT = 6 #7 #9
         MIN_MSE_DECISION = 30000
 
         # find the keypoints and descriptors with SIFT
@@ -148,8 +148,6 @@ class DetectSign():
                 matches = mask.ravel().tolist()
 
                 mse = self.fnCalcMSE(src_pts, dst_pts)
-                rospy.loginfo('mse:')
-                rospy.loginfo(mse)
 
                 if mse < MIN_MSE_DECISION:
                     rospy.loginfo("detect tunnel")
@@ -261,8 +259,8 @@ class DetectSign():
         goalPoseStamped.header.frame_id = "map"
         goalPoseStamped.header.stamp = rospy.Time.now()
 
-        goalPoseStamped.pose.position.x = -0.15 # 0.3
-        goalPoseStamped.pose.position.y = -1.747 # -1.74
+        goalPoseStamped.pose.position.x = 0.3
+        goalPoseStamped.pose.position.y = -1.74
         goalPoseStamped.pose.position.z = 0.0
 
         goalPoseStamped.pose.orientation.x = 0.0
