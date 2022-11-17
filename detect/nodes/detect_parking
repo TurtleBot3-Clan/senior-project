@@ -59,7 +59,7 @@ class DetectSign():
         scan_start_right = 270 - angle_scan
         scan_end_right = 270 + angle_scan
 
-        threshold_distance = 0.5
+        threshold_distance = 0.5 # 0.5
 
         if self.start_obstacle_detection == True:
             for i in range(scan_start_left, scan_end_left):
@@ -77,13 +77,13 @@ class DetectSign():
 
     def fnPreproc(self):
         # Initiate SIFT detector
-        self.sift = cv2.SIFT_create() #xfeatures2d.SIFT_create()
+        self.sift = cv2.SIFT_create()
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = dir_path.replace('detect/nodes', 'detect/')
         dir_path += 'image/'
 
-        self.img_parking = cv2.imread(dir_path + 'parking.png', 0)
+        self.img_parking = cv2.imread(dir_path + 'parking2.png', 0)
         self.kp_parking, self.des_parking = self.sift.detectAndCompute(self.img_parking, None)
 
         FLANN_INDEX_KDTREE = 0
@@ -114,7 +114,7 @@ class DetectSign():
         # converting raw image to opencv image
         # cv_image_input = CvBridge.imgmsg_to_cv2(image_msg, "bgr8")
 
-        MIN_MATCH_COUNT = 11 #9
+        MIN_MATCH_COUNT = 10 # 11 #9
         MIN_MSE_DECISION = 50000
 
         # find the keypoints and descriptors with SIFT
@@ -128,8 +128,7 @@ class DetectSign():
             for m,n in matches:
                 if m.distance < 0.7 * n.distance:
                     good.append(m)
-                    # if len(good) > 6:
-                    #     rospy.loginfo('len(good): %d', len(good))
+            rospy.loginfo('len(good): %d', len(good))
             if len(good)>MIN_MATCH_COUNT:
                 src_pts = np.float32([kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
                 dst_pts = np.float32([self.kp_parking[m.trainIdx].pt for m in good]).reshape(-1,1,2)
@@ -171,10 +170,10 @@ class DetectSign():
 
             rospy.sleep(3)
             
-            rospy.loginfo("[PARKING] L")
+            rospy.loginfo("1 [PARKING] adjust angle...")
             msg_moving = MovingParam()
-            msg_moving.moving_type=2
-            msg_moving.moving_value_angular=2
+            msg_moving.moving_type=3 #2
+            msg_moving.moving_value_angular=12 # 2
             msg_moving.moving_value_linear=0.0
             self.pub_moving.publish(msg_moving)
             while True:
@@ -184,11 +183,11 @@ class DetectSign():
 
             rospy.sleep(1)
 
-            rospy.loginfo("[PARKING] S")
+            rospy.loginfo("2 [PARKING] S forward...")
             msg_moving = MovingParam()
             msg_moving.moving_type= 4
             msg_moving.moving_value_angular=0.0
-            msg_moving.moving_value_linear=0.5 # 0.75
+            msg_moving.moving_value_linear=0.69 # 0.75
             self.pub_moving.publish(msg_moving)
             while True:
                 if self.is_moving_complete == True:
@@ -197,10 +196,10 @@ class DetectSign():
 
             rospy.sleep(1)
 
-            rospy.loginfo("[PARKING] L")
+            rospy.loginfo("3 [PARKING] L turn into parking road")
             msg_moving = MovingParam()
             msg_moving.moving_type=2
-            msg_moving.moving_value_angular=91
+            msg_moving.moving_value_angular=90
             msg_moving.moving_value_linear=0.0
             self.pub_moving.publish(msg_moving)
             while True:
@@ -210,7 +209,7 @@ class DetectSign():
 
             rospy.sleep(1)
 
-            rospy.loginfo("[PARKING] S2")
+            rospy.loginfo("4 [PARKING] S2 go to parking")
             msg_moving.moving_type= 4
             msg_moving.moving_value_angular=0.0
             msg_moving.moving_value_linear=1.0
@@ -228,14 +227,14 @@ class DetectSign():
                 if self.is_obstacle_detected_L == True or self.is_obstacle_detected_R == True:
                     break
 
-            rospy.loginfo("[PARKING] PARKING...")
+            rospy.loginfo("5 [PARKING] PARKING...")
 
             if self.is_obstacle_detected_L == True:
 
-                rospy.loginfo("[PARKING] RIGHT_CLEAR")
+                rospy.loginfo("R1 [PARKING] RIGHT_CLEAR")
                 msg_moving = MovingParam()
 
-                rospy.loginfo("[PARKING] R")
+                rospy.loginfo("R2 [PARKING] R")
                 msg_moving.moving_type=3
                 msg_moving.moving_value_angular=90
                 msg_moving.moving_value_linear=0.0
@@ -247,7 +246,7 @@ class DetectSign():
 
                 rospy.sleep(1)
 
-                rospy.loginfo("[PARKING] S")
+                rospy.loginfo("R3 [PARKING] S")
                 msg_moving.moving_type= 4
                 msg_moving.moving_value_angular=0.0
                 msg_moving.moving_value_linear=0.3
@@ -259,7 +258,7 @@ class DetectSign():
 
                 rospy.sleep(3)
                 
-                rospy.loginfo("[PARKING] B")
+                rospy.loginfo("R4 [PARKING] B")
                 msg_moving.moving_type= 5
                 msg_moving.moving_value_angular=0.0
                 msg_moving.moving_value_linear=0.3
@@ -271,7 +270,7 @@ class DetectSign():
 
                 rospy.sleep(1)
 
-                rospy.loginfo("[PARKING] R")
+                rospy.loginfo("R5 [PARKING] R")
                 msg_moving.moving_type= 3
                 msg_moving.moving_value_angular=90
                 msg_moving.moving_value_linear=0.0
@@ -282,10 +281,10 @@ class DetectSign():
                 self.is_moving_complete = False
             
             elif self.is_obstacle_detected_R == True:
-                rospy.loginfo("[PARKING] LEFT_CLEAR")
+                rospy.loginfo("L1 [PARKING] LEFT_CLEAR")
                 msg_moving = MovingParam()
 
-                rospy.loginfo("[PARKING] L")
+                rospy.loginfo("L2 [PARKING] L")
                 msg_moving.moving_type=2
                 msg_moving.moving_value_angular=90
                 msg_moving.moving_value_linear=0.0
@@ -297,7 +296,7 @@ class DetectSign():
 
                 rospy.sleep(1)
 
-                rospy.loginfo("[PARKING] S")
+                rospy.loginfo("L3 [PARKING] S")
                 msg_moving.moving_type= 4
                 msg_moving.moving_value_angular=0.0
                 msg_moving.moving_value_linear=0.3
@@ -309,7 +308,7 @@ class DetectSign():
 
                 rospy.sleep(3)
                 
-                rospy.loginfo("[PARKING] B")
+                rospy.loginfo("L4 [PARKING] B")
                 msg_moving.moving_type= 5
                 msg_moving.moving_value_angular=0.0
                 msg_moving.moving_value_linear=0.3
@@ -321,7 +320,7 @@ class DetectSign():
 
                 rospy.sleep(1)
 
-                rospy.loginfo("[PARKING] L")
+                rospy.loginfo("L5 [PARKING] L")
                 msg_moving.moving_type= 2
                 msg_moving.moving_value_angular=90
                 msg_moving.moving_value_linear=0.0
@@ -333,9 +332,9 @@ class DetectSign():
         
             rospy.sleep(1)
 
-            rospy.loginfo("[PARKING] GO OUT...")
+            rospy.loginfo("6 [PARKING] GO OUT...")
 
-            rospy.loginfo("[PARKING] S")
+            rospy.loginfo("7 [PARKING] S")
             msg_moving.moving_type= 4
             msg_moving.moving_value_angular=0.0
             msg_moving.moving_value_linear=1.0
@@ -347,7 +346,7 @@ class DetectSign():
 
             rospy.sleep(1)
 
-            rospy.loginfo("[PARKING] L")
+            rospy.loginfo("8 [PARKING] L")
             msg_moving.moving_type=2
             msg_moving.moving_value_angular=90
             msg_moving.moving_value_linear=0.0
@@ -357,7 +356,7 @@ class DetectSign():
                     break  
             self.is_moving_complete = False
 
-            rospy.loginfo("[PARKING] FINISH...")
+            rospy.loginfo("9 [PARKING] FINISH...")
 
             # go to next mission
             self.pub_mission.publish(self.Mission.LevelCrossing.value)

@@ -55,6 +55,7 @@ class DetectSign():
         for i in range(scan_start, scan_end):
             if scan.ranges[i] < threshold_distance and scan.ranges[i] > 0.35:
                 is_obstacle_detected = True
+                rospy.loginfo('obstacle detected')
         
         self.is_obstacle_detected = is_obstacle_detected
 
@@ -111,6 +112,7 @@ class DetectSign():
             for m,n in matches:
                 if m.distance < 0.7*n.distance:
                     good.append(m)
+            rospy.loginfo(len(good))
             if len(good)>MIN_MATCH_COUNT:
                 src_pts = np.float32([kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
                 dst_pts = np.float32([self.kp_construction[m.trainIdx].pt for m in good]).reshape(-1,1,2)
@@ -140,23 +142,23 @@ class DetectSign():
             self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_compressed_imgmsg(fianl, "jpg"))
 
         # construction process
-        if self.is_obstacle_detected == True:
+        if self.is_obstacle_detected == True and self.is_saw_construction == True:
             self.pub_lane_toggle.publish(False) # 關掉 control lane
             rospy.loginfo('construction processing')
-            for x in range(0, 35): #15
-                self.pub_fake_lane.publish(350) #400
+            for x in range(0, 15): # 35
+                self.pub_fake_lane.publish(400) # 350
                 rospy.sleep(0.1)
-            for x in range(0, 28): #14
-                self.pub_fake_lane.publish(670) #600
+            for x in range(0, 14): # 28
+                self.pub_fake_lane.publish(600) # 670
                 rospy.sleep(0.1)
-            for x in range(0, 3): #3
-                self.pub_fake_lane.publish(500) #500
+            for x in range(0, 8): #3
+                self.pub_fake_lane.publish(500) # 500
                 rospy.sleep(0.1)
-            for x in range(0, 40): #17
-                self.pub_fake_lane.publish(670) #600
+            for x in range(0, 17): # 40
+                self.pub_fake_lane.publish(640) # 600 670
                 rospy.sleep(0.1)
-            for x in range(0, 26): #13
-                self.pub_fake_lane.publish(350) #400
+            for x in range(0, 13): # 13 26
+                self.pub_fake_lane.publish(400) # 400 350
                 rospy.sleep(0.1)
             self.pub_lane_toggle.publish(True)
             rospy.loginfo('DONE')
