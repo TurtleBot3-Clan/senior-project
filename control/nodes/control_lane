@@ -12,7 +12,7 @@ class ControlLane():
         self.pub_cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size = 1)
 
         self.lastError = 0
-        self.MAX_VEL = 0.2
+        self.MAX_VEL = 0.15
 
         rospy.on_shutdown(self.fnShutDown)
 
@@ -30,7 +30,7 @@ class ControlLane():
 
         # true value
         Kp = 0.009 # 0.009
-        Kd = 0.009
+        Kd = 0.009 # 0.009
 
         angular_z = Kp * error + Kd * (error - self.lastError)
         self.lastError = error

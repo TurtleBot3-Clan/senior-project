@@ -151,7 +151,7 @@ class DetectSign():
             for x in range(0, 14): # 28
                 self.pub_fake_lane.publish(600) # 670
                 rospy.sleep(0.1)
-            for x in range(0, 8): #3
+            for x in range(0, 15): # 8 3
                 self.pub_fake_lane.publish(500) # 500
                 rospy.sleep(0.1)
             for x in range(0, 17): # 40

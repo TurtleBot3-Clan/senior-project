@@ -95,8 +95,10 @@ class CoreNodeController():
 
         elif self.current_mode == self.Mission.Construction.value:
             rospy.loginfo('current mode: Construction Mission')
-            self.fnLaunch(self.Launcher.detectlane.value, True) #
-            self.fnLaunch(self.Launcher.controllane.value, True) #
+            self.fnLaunch(self.Launcher.detectlane.value, False)
+            self.fnLaunch(self.Launcher.controllane.value, False)
+            self.fnLaunch(self.Launcher.detectlane.value, True)
+            self.fnLaunch(self.Launcher.controllane.value, True)
             self.fnLaunch(self.Launcher.intersection.value, False)
             self.fnLaunch(self.Launcher.construction.value, True)
 
@@ -115,6 +117,8 @@ class CoreNodeController():
         
         elif self.current_mode == self.Mission.Level.value:
             rospy.loginfo("current mode: Level Mission")
+            self.fnLaunch(self.Launcher.detectlane.value, False)
+            self.fnLaunch(self.Launcher.detectlane.value, True)
             self.fnLaunch(self.Launcher.controlmoving.value, False)
             self.fnLaunch(self.Launcher.parking.value, False)
             self.fnLaunch(self.Launcher.controllane.value, True)
@@ -130,7 +134,6 @@ class CoreNodeController():
 
             elif self.current_step_tunnel == self.TunnelStep.process.value:
                 rospy.loginfo("tunnel process")
-                self.fnLaunch(self.Launcher.detectlane.value, False)
                 self.fnLaunch(self.Launcher.controllane.value, False)
 
             elif self.current_step_tunnel == self.TunnelStep.nav.value:
