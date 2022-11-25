@@ -24,16 +24,16 @@ top_y: 46
 bottom_x: 150
 bottom_y: 120
 
-hue_white_l: 38
-hue_white_h: 179
+hue_white_l: 65
+hue_white_h: 147
 saturation_white_l: 0
-saturation_white_h: 124
-lightness_white_l: 253
+saturation_white_h: 190
+lightness_white_l: 167
 lightness_white_h: 255
 
-hue_yellow_l: 0
-hue_yellow_h: 38
-saturation_yellow_l: 33
+hue_yellow_l: 10
+hue_yellow_h: 55
+saturation_yellow_l: 45
 saturation_yellow_h: 255
-lightness_yellow_l: 227
+lightness_yellow_l: 220
 lightness_yellow_h: 255
