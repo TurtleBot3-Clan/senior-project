@@ -15,15 +15,19 @@ class CoreNodeController():
         self.sub_mission = rospy.Subscriber('/mission', UInt8, self.cbReceiveMode, queue_size=1)
 
         # Sub from each mission step data
+        rospy.Subscriber('/mission/parking', UInt8, self.cbParkingStep, queue_size=1)
         rospy.Subscriber('/mission/tunnel', UInt8, self.cbTunnelStep, queue_size=1)
+
         
         self.Mission = Enum('Mission', 'Idle TrafficLight Intersection Construction Parking Level Tunnel')
 
         # each mission step enum
+        self.ParkingStep = Enum('ParkingStep', 'default process')
         self.TunnelStep = Enum('TunnelStep', 'default process nav end')
 
         self.is_triggered = True
         self.current_mode = self.Mission.TrafficLight.value
+        self.current_step_parking = self.ParkingStep.default.value
         self.current_step_tunnel = self.TunnelStep.default.value
 
         # launcher enum
@@ -91,19 +95,33 @@ class CoreNodeController():
 
         elif self.current_mode == self.Mission.Construction.value:
             rospy.loginfo('current mode: Construction Mission')
+            self.fnLaunch(self.Launcher.detectlane.value, False)
+            self.fnLaunch(self.Launcher.controllane.value, False)
+            self.fnLaunch(self.Launcher.detectlane.value, True)
+            self.fnLaunch(self.Launcher.controllane.value, True)
             self.fnLaunch(self.Launcher.intersection.value, False)
             self.fnLaunch(self.Launcher.construction.value, True)
 
         elif self.current_mode == self.Mission.Parking.value:
             rospy.loginfo('current mode: Parking Mission')
-            self.fnLaunch(self.Launcher.construction.value, False)
-            self.fnLaunch(self.Launcher.controlmoving.value, True)
-            self.fnLaunch(self.Launcher.parking.value, True)
+
+            if self.current_step_parking == self.ParkingStep.default.value:
+                rospy.loginfo('Parking Default')
+                self.fnLaunch(self.Launcher.construction.value, False)
+                self.fnLaunch(self.Launcher.parking.value, True)
+                self.fnLaunch(self.Launcher.controlmoving.value, True)
+
+            elif self.current_step_parking == self.ParkingStep.process.value:
+                rospy.loginfo('Parking Process')
+                self.fnLaunch(self.Launcher.controllane.value, False)
         
         elif self.current_mode == self.Mission.Level.value:
             rospy.loginfo("current mode: Level Mission")
+            self.fnLaunch(self.Launcher.detectlane.value, False)
+            self.fnLaunch(self.Launcher.detectlane.value, True)
             self.fnLaunch(self.Launcher.controlmoving.value, False)
             self.fnLaunch(self.Launcher.parking.value, False)
+            self.fnLaunch(self.Launcher.controllane.value, True)
             self.fnLaunch(self.Launcher.level.value, True)
         
         elif self.current_mode == self.Mission.Tunnel.value:
@@ -116,7 +134,6 @@ class CoreNodeController():
 
             elif self.current_step_tunnel == self.TunnelStep.process.value:
                 rospy.loginfo("tunnel process")
-                self.fnLaunch(self.Launcher.detectlane.value, False)
                 self.fnLaunch(self.Launcher.controllane.value, False)
 
             elif self.current_step_tunnel == self.TunnelStep.nav.value:

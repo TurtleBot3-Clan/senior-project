@@ -95,7 +95,7 @@ class DetectSign():
         dir_path = dir_path.replace('detect/nodes', 'detect/')
         dir_path += 'image/'
 
-        self.img_tunnel = cv2.imread(dir_path + 'tunnel.png', 0)
+        self.img_tunnel = cv2.imread(dir_path + 'tunnel2.png', 0)
         self.kp_tunnel, self.des_tunnel = self.sift.detectAndCompute(self.img_tunnel, None)
 
         FLANN_INDEX_KDTREE = 0
@@ -127,7 +127,7 @@ class DetectSign():
         # cv_image_input = CvBridge.imgmsg_to_cv2(image_msg, "bgr8")
 
         MIN_MATCH_COUNT = 10 #7 #9
-        MIN_MSE_DECISION = 30000
+        MIN_MSE_DECISION = 45000 #30000
 
         # find the keypoints and descriptors with SIFT
         kp1, des1 = self.sift.detectAndCompute(cv_image_input,None)
@@ -141,6 +141,7 @@ class DetectSign():
                 if m.distance < 0.7 * n.distance:
                     good.append(m)
             if len(good)>MIN_MATCH_COUNT:
+                # rospy.loginfo(len(good))
                 src_pts = np.float32([kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
                 dst_pts = np.float32([self.kp_tunnel[m.trainIdx].pt for m in good]).reshape(-1,1,2)
 
@@ -148,9 +149,8 @@ class DetectSign():
                 matches = mask.ravel().tolist()
 
                 mse = self.fnCalcMSE(src_pts, dst_pts)
-                rospy.loginfo('mse:')
-                rospy.loginfo(mse)
 
+                # rospy.loginfo(mse)
                 if mse < MIN_MSE_DECISION:
                     rospy.loginfo("detect tunnel")
                     image_out_num = 2
@@ -185,7 +185,7 @@ class DetectSign():
             self.start_pos_y = self.current_pos_y
 
             while True:
-                error = self.fnStraight(0.63) # 0.6
+                error = self.fnStraight(0.67) # 0.6
 
                 if math.fabs(error) < 0.005: # absolute 0.005
                     break
@@ -261,8 +261,8 @@ class DetectSign():
         goalPoseStamped.header.frame_id = "map"
         goalPoseStamped.header.stamp = rospy.Time.now()
 
-        goalPoseStamped.pose.position.x = -0.15 # 0.3
-        goalPoseStamped.pose.position.y = -1.747 # -1.74
+        goalPoseStamped.pose.position.x = 0.3
+        goalPoseStamped.pose.position.y = -1.74
         goalPoseStamped.pose.position.z = 0.0
 
         goalPoseStamped.pose.orientation.x = 0.0
